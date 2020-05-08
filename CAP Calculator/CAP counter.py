@@ -1,10 +1,9 @@
-Y1S1 = [("A", 4),("A", 4),("A+", 4),("A+",4),("A+",4)]
-
 def grade_count(*grades):
     grade_dict ={"A+":5.0, "A":5.0, "A-":4.5,
                  "B+":4.0, "B":3.5, "B-":3.0,
                  "C+":2.5, "C":2.0, "D+":1.5,
                  "D":1.0, "F":0.0, "S":0.0, "U":0.0}
+    
     curr_grades = []
     for grade in grades:
         for i in range(len(grade)):
@@ -25,5 +24,4 @@ def grade_count(*grades):
         total_mc += pt * mc
     return total_mc/sum(mcs)
 
-print(grade_count(Y1S1))
     
