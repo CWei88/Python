@@ -1,2 +1,2 @@
 # Python
-This is where I keep all my relevant Python Code and Software
+Python code and things that I did for CS1010S.
