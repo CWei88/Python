@@ -1,1 +1,4 @@
-NUS CAP Calculator
+CAP/GPA Calculator for NUS, NTU and SMU.
+
+Note that in order to run this, you will need something that is able to run python files, such as IDLE.
+I don't know how to UI so I can't make this into an exe lol.
