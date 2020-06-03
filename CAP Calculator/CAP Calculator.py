@@ -6,13 +6,13 @@ grade_dict ={"NUS":{"A+":5.0, "A":5.0, "A-":4.5,
                     "B+":4.0, "B":3.5, "B-":3.0,
                     "C+":2.5, "C":2.0, "D+":1.5,
                     "D":1.0, "F":0.0, "S":0.0, "U":0.0},
-             "SMU":{"A+":4.3, "A":4.0, "A-": 3.7,
+             "SMU":{"A+":4.3, "A":4.0, "A-":3.7,
                     "B+":3.3, "B":3.0, "B-":2.7,
                     "C+":2.3, "C":2.0, "C-":1.7,
                     "D+":1.3, "D":1.0, "F":0.0,
                     "S":0.0, "U":0.0}}
 
-def grade_count(uni, *grades):
+def grade_count(uni, grades):
     curr_grades = []
     for grade in grades:
         for i in range(len(grade)):
@@ -38,30 +38,40 @@ def grade_count(uni, *grades):
         total_mc += pt * mc
     result = round(total_mc/sum(mcs),2)
     
-    if uni == "SMU":
-        if result > 4.0:
-            result = 4.0
-        print(f"Your estimated GPA is: {result}")
-    else:
-        print(f"Your estimated CAP is: {result}")
+    
+    print(f"Your estimated CAP is: {result}")
 
-def sem_grades(uni):
-    sem_res = input("Please input your grades in order, seperated by commas: ")
+def sem_grades(uni, i):
+    if i == 0:
+        msg = f"Please input your grades for the {i+1}st semester, seperated by commas: "
+    elif i == 1:
+        msg = f"Please input your grades for the {i+1}nd semester, seperated by commas: "
+    else:
+        msg = f"Please input your grades for the {i+1}th semester, seperated by commas: "
+    
+    sem_res = input(msg)
     sem_res = sem_res.strip()
     sem_res = sem_res.split(",")
     if is_int(sem_res) or is_int(sem_res) is None:
         print("Results input cannot be integers. Please try again.")
-        return sem_grades(uni)
+        return sem_grades(uni, i)
     sem_res = tuple(map(lambda x: x.upper(), sem_res))
 
     for grade in sem_res:
         if grade not in grade_dict[uni]:
             print("You have entered an invalid grade. Please try again.")
-            return sem_grades(uni) 
+            return sem_grades(uni, i) 
     
     
     ## Find number of credits
-    sem_mc = input("Please input the number of credits per module in order, seperated by commas: ")
+    if i == 0:
+        mc_msg = f"Please input the number of credits for the {i+1}nd semester per module in order, seperated by commas: "
+    elif i == 1:
+        mc_msg = f"Please input the number of credits for the {i+1}nd semester per module in order, seperated by commas: "
+    else:
+        mc_msg = f"Please input the number of credits for the {i+1}th semester per module in order, seperated by commas: "
+        
+    sem_mc = input(mc_msg)
     sem_mc = sem_mc.strip()
     sem_mc = sem_mc.split(",")
     if not is_int(sem_mc) or is_int(sem_mc) is None:
@@ -72,12 +82,12 @@ def sem_grades(uni):
     ## Checking if the number of results given is more than the number of credits
     if len(sem_res) > len(sem_mc): 
         print("You have more grades given than the number of credited modules. Please try again.")
-        return sem_grades(uni)
+        return sem_grades(uni, i)
     
     ##Checking if the number of credits given is more than the number of results
     elif len(sem_mc) > len(sem_res):
         print("You have more number of credited modules than the grades given. Please try again.")
-        return sem_grades(uni)
+        return sem_grades(uni, i)
     
     ## Combining them into a list
     res = []
@@ -115,13 +125,18 @@ def uni_qn():
             print('Goodbye')
     return uni
 
+def how_many_sems(uni):
+    noOfSems = input("How many semesters of results do you want to calculate? ")
+    noOfSems = int(noOfSems)
+
+    sem_results = []
+    for i in range(noOfSems):
+        res = sem_grades(uni, i)
+        sem_results.append(res)
+
+    return grade_count(uni, sem_results)
+
 uni = uni_qn()
-print(" ")
-print("----------------------------------------------------------Instructions---------------------------------------------------------------")
-print('Use uni as the variable to calculate your CAP/GPA.')
-print('Use sem_grades(uni) to get your grades for a semester.')
-print('To save your results for different semesters, use YaSb = sem_grades(uni), replace a with year and b with semester.')
-print('Use grade_count(uni, semesters) to calculate your total CAP/GPA.')
-print('If you only want to calculate your CAP/GPA for this semester, only input one semester. Otherwise, seperate each semester by a comma.')
+how_many_sems(uni)
 
     
