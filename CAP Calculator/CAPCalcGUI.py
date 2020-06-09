@@ -4,6 +4,7 @@ from tkinter import ttk
 grade_entry = {}
 credit_entry = {}
 uni = None
+page_entry = []
 
 ######################
 ###CAP Cal Classes###
@@ -46,33 +47,25 @@ class CAPCal:
     def get_uni(self):
         return self.uni
 
-    def sem_grades(self, grades, credit):
+    def sem_grades(self, grades, credit, key):
         if is_int(grades) or is_int(grades) is None:
-            print("Results input cannot be integers. Please try again.")
-            return self.sem_grades(grades, credit)
+            return popupmsg(f"Result field cannot contain integers in {key}, please try again.", "Integer Error")
         sem_res = tuple(map(lambda x: x.upper(), grades))
 
         for grade in sem_res:
             if grade not in grade_dict[self.uni]:
-                print("You have entered an invalid grade. Please try again.")
-                return self.sem_grades(grades, credit) 
-        
+                return popupmsg(f"Sorry, you have entered an invalid grade in {key}. Please try again.", "Grade not found")
         
         ## Find number of credits
-        if not is_int(credit) or is_int(credit) is None:
-            print("Credit input cannot be strings. Please try again.")
-            return self.sem_grades(grades, credit)
         sem_mc = tuple(map(lambda x: int(x), credit))
 
         ## Checking if the number of results given is more than the number of credits
         if len(sem_res) > len(sem_mc): 
-            print("You have more grades given than the number of credited modules. Please try again.")
-            return self.sem_grades(grades, credit)
+            return popupmsg(f"You have input more grades than the number of credited modules in {key}. Please try again.", "Non-tally Error")
         
         ##Checking if the number of credits given is more than the number of results
         elif len(sem_mc) > len(sem_res):
-            print("You have more number of credited modules than the grades given. Please try again.")
-            return self.sem_grades(grades, credit)
+            return popupmsg(f"You have more number of credited modules than the number of grades input in {key}. Please try again.", "Non-tally Error")
         
         ## Combining them into a list
         res = []
@@ -129,6 +122,28 @@ def popupmsg(string, title):
     b1.pack()
     popup.mainloop()
 
+def abtMenu():
+    root = tk.Tk()
+    root.tk.call('tk','scaling', 2.0)
+    root.resizable(0,0)
+
+    scrollbar = tk.Scrollbar(root)
+    scrollbar.pack(side = "right", fill = "y")
+
+    text = tk.Text(root, height=20, width=70)
+    text.pack(side = "left")
+    text.tag_configure('big', font=('Helvetica', 20, 'bold'))
+    text.tag_configure('heading', font=('Helvetica', 14, 'bold'))
+    text.tag_configure('body', font=('Helvetica', 10))
+    text.tag_configure('center', justify='center')
+
+    text.insert(tk.END, 'About \n', ['big', 'center'])
+    text.insert(tk.END, '\nVersion 0.7.0 \n', 'heading')
+    text.insert(tk.END, 'This is a beta version of this application and may be buggy. \nPlease use it with caution.', 'body')
+
+    root.mainloop()
+
+
 def helpMenu():
     root = tk.Tk()
     root.tk.call('tk','scaling',2.0)
@@ -143,9 +158,10 @@ def helpMenu():
     text1.tag_configure('big', font=('Helvetica', 20, 'bold'))
     text1.tag_configure('heading', font=('Helvetica', 14, 'bold'))
     text1.tag_configure('body', font=('Helvetica', 10))
+    text1.tag_configure('center', justify='center')
 
-    text1.insert(tk.END, '\n HELP \n', 'big')
-    text1.insert(tk.END, '\n \n How does this app work? \n', 'heading')
+    text1.insert(tk.END, '\nHELP \n', ['big', 'center'])
+    text1.insert(tk.END, '\n \nHow does this app work? \n', 'heading')
 
     ans1 = '''
 This app works by calculating your grades and credits from each module respectively.
@@ -172,7 +188,10 @@ def getCredits(entry):
     if res:
         res = res.strip()
         res = res.split(",")
-        res = list(map(lambda x: int(x), res))
+        try:
+            res = list(map(lambda x: int(x), res))
+        except ValueError:
+            return popupmsg("Credit input cannot contain non-integers. Please try again.", "Non-Integer Error")
         return res
 
 def previousButton(controller, entry1, entry2, key, prevPage):
@@ -190,24 +209,28 @@ def previousButton(controller, entry1, entry2, key, prevPage):
 def nextButton(controller, entry1, entry2, key, nextPage):
     global grade_entry
     global credit_entry
+    global page_entry
         
     grade = getGrades(entry1)
     credit = getCredits(entry2)
 
     grade_entry[key] = grade
     credit_entry[key] = credit
+    page_entry.append(page_dict[key])
     
     return controller.show_frame(nextPage)
 
 def finishButton(controller, entry1, entry2, key):
     global grade_entry
     global credit_entry
+    global page_entry
     
     grade = getGrades(entry1)
     credit = getCredits(entry2)
 
     grade_entry[key] = grade
     credit_entry[key] = credit
+    page_entry.append(page_dict[key])
         
     return controller.show_frame(FinalPage)
 
@@ -227,7 +250,7 @@ class CAPCalc(tk.Tk):
         menubar = tk.Menu(container)
 
         filemenu = tk.Menu(menubar, tearoff = 0)
-        filemenu.add_command(label = "About", command = lambda: popupmsg('''Version 0.4.0 Beta.\n This software may be buggy, please use it at your own discretion.''', "Version"))
+        filemenu.add_command(label = "About", command = lambda: abtMenu())
         filemenu.add_command(label = "Quit", command = quit)
 
         menubar.add_cascade(label = "File", menu = filemenu)
@@ -240,7 +263,7 @@ class CAPCalc(tk.Tk):
         tk.Tk.config(self, menu=menubar)
 
         self.frames = {}
-        for fr in (StartPage, Y1S1, Y1S2, Y2S1, Y2S2, Y3S1, Y3S2, FinalPage):
+        for fr in (StartPage, Y1S1, Y1S2, Y2S1, Y2S2, Y3S1, Y3S2, Y4S1, Y4S2, FinalPage):
             frame = fr(container, self)
 
             self.frames[fr] = frame
@@ -458,7 +481,7 @@ class Y3S2(tk.Frame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        label0 = ttk.Label(self, text="Year 3 Semester 1")
+        label0 = ttk.Label(self, text="Year 3 Semester 2")
         label0.config(font=("Segoe UI", 14))
         label0.pack()
         
@@ -479,10 +502,78 @@ class Y3S2(tk.Frame):
         button1 = ttk.Button(self, text = "Previous <", command = lambda: previousButton(self.controller, entry1, entry2, "Y3S2", Y3S1))
         button1.pack(side = "left")
 
-        button2 = ttk.Button(self, text="Next >", command=lambda: nextButton(self.controller, entry1, entry2, "Y3S2", FinalPage))
+        button2 = ttk.Button(self, text="Next >", command=lambda: nextButton(self.controller, entry1, entry2, "Y3S2", Y4S1))
         button2.pack(side = "right")
 
         button3 = ttk.Button(self, text="Finish", command=lambda: finishButton(self.controller, entry1, entry2, "Y3S2"))
+        button3.pack(side = "top")
+
+class Y4S1(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        label0 = ttk.Label(self, text="Year 4 Semester 1")
+        label0.config(font=("Segoe UI", 14))
+        label0.pack()
+        
+        label1 = ttk.Label(self, text="Please enter your grades, seperated by commas.")
+        label1.config(font = ("Segoe UI", 12))
+        label1.pack()
+
+        entry1 = ttk.Entry(self)
+        entry1.pack()
+
+        label2 = ttk.Label(self, text = "Please enter your credits per module, seperated by commas.")
+        label2.config(font = ("Segoe UI", 12))
+        label2.pack()
+
+        entry2 = ttk.Entry(self)
+        entry2.pack()
+
+        button1 = ttk.Button(self, text = "Previous <", command = lambda: previousButton(self.controller, entry1, entry2, "Y4S1", Y3S2))
+        button1.pack(side = "left")
+
+        button2 = ttk.Button(self, text="Next >", command=lambda: nextButton(self.controller, entry1, entry2, "Y4S1", Y4S2))
+        button2.pack(side = "right")
+
+        button3 = ttk.Button(self, text="Finish", command=lambda: finishButton(self.controller, entry1, entry2, "Y4S1"))
+        button3.pack(side = "top")
+
+class Y4S2(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        label0 = ttk.Label(self, text="Year 4 Semester 2")
+        label0.config(font=("Segoe UI", 14))
+        label0.pack()
+        
+        label1 = ttk.Label(self, text="Please enter your grades, seperated by commas.")
+        label1.config(font = ("Segoe UI", 12))
+        label1.pack()
+
+        entry1 = ttk.Entry(self)
+        entry1.pack()
+
+        label2 = ttk.Label(self, text = "Please enter your credits per module, seperated by commas.")
+        label2.config(font = ("Segoe UI", 12))
+        label2.pack()
+
+        entry2 = ttk.Entry(self)
+        entry2.pack()
+
+        button1 = ttk.Button(self, text = "Previous <", command = lambda: previousButton(self.controller, entry1, entry2, "Y4S2", Y4S1))
+        button1.pack(side = "left")
+
+        button2 = ttk.Button(self, text="Next >", command=lambda: nextButton(self.controller, entry1, entry2, "Y4S2", FinalPage))
+        button2.pack(side = "right")
+
+        button3 = ttk.Button(self, text="Finish", command=lambda: finishButton(self.controller, entry1, entry2, "Y4S2"))
         button3.pack(side = "top")
 
 
@@ -491,6 +582,7 @@ class FinalPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
+        self.controller = controller
 
         label1 = ttk.Label(self, text="Your estimated GPA is: ")
         label1.config(font = ("Segoe UI", 12))
@@ -499,10 +591,10 @@ class FinalPage(tk.Frame):
         button1 = ttk.Button(self, text="Calculate", command=lambda: self.calculate(button1))
         button1.pack()
 
-        button2 = ttk.Button(self, text= "Previous", command=lambda: controller.show_frame(Y2S2))
+        button2 = ttk.Button(self, text= "Previous", command=lambda: self.prevButton(self.controller))
         button2.pack(side = "left")
         
-    def calculate(self, but):
+    def calculate(self,but):
         global uni
         global grade_entry
         global credit_entry
@@ -512,23 +604,37 @@ class FinalPage(tk.Frame):
         for grade_key, credit_key in zip(grade_entry, credit_entry):
             grade_val = grade_entry[grade_key]
             credit_val = credit_entry[credit_key]
-            
-            graded = res.sem_grades(grade_val, credit_val)
-            all_results.append(graded)
-            
-        final = res.grade_count(all_results)
+            try:
+                graded = res.sem_grades(grade_val, credit_val, grade_key)
+                all_results.append(graded)
+            except Exception:
+                all_results = "                   Error! \nNo input was detected for any semester. \n             Please try again."
+
+        if type(all_results) != str:
+            final = res.grade_count(all_results)
+        else:
+            final = all_results
 
         but.destroy()
 
         label2 = ttk.Label(self, text=str(final))
         label2.config(font = ("Segoe UI", 12))
-        label2.pack(side = "top")
+        label2.pack()
 
-        grade_entry.clear()
-        credit_entry.clear()
+    def prevButton(self, controller):
+        global page_entry
         
+        button1 = ttk.Button(self, text="Calculate", command=lambda: self.calculate(button1))
+        button1.pack()
 
-        
+        return controller.show_frame(page_entry[-1])
+       
+
+page_dict = {"Y1S1":Y1S1, "Y1S2":Y1S2,
+             "Y2S1":Y2S1, "Y2S2":Y2S2,
+             "Y3S1":Y3S1, "Y3S2":Y3S2,
+             "Y4S1":Y4S1, "Y4S2":Y4S2}
+
 
 app = CAPCalc()
 app.geometry("650x275")
