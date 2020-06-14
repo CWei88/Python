@@ -78,6 +78,9 @@ class CAPCal:
         ##Calculating total MC
         for pt, mc in zip(total_points, mcs):
             total_mc += pt * mc
-        result = round(total_mc/sum(mcs),2)
+        if sum(mcs) == 0:
+            result = 0
+        else:
+            result = round(total_mc/sum(mcs),2)
         
         return result

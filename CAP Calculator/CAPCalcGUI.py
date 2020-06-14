@@ -1,11 +1,16 @@
 import tkinter as tk
 from tkinter import ttk
+
 import CCmain as ccm
 
 grade_entry = {}
 credit_entry = {}
 uni = None
 page_entry = []
+init_gpa = 0.0
+bef_credit = 0
+this_sem_grades = []
+this_sem_credits = []
 
 ###################
 ###Program Start###
@@ -45,18 +50,26 @@ def abtMenu():
     text.tag_configure('center', justify='center')
 
     text.insert(tk.END, 'About \n', ['big', 'center'])
-    text.insert(tk.END, '\nVersion 0.8.0 \n', 'heading')
+    text.insert(tk.END, '\nVersion 0.9.5 \n', 'heading')
     text.insert(tk.END, 'This is a beta version of this application and thus may be buggy. \nPlease use it with caution.', 'body')
-
     text.insert(tk.END, '\n \nChangelog', 'heading')
-    ans= '''
-Edited errors so that they are more informative.
-Added basic functionality for a SU Calculator.
-Some errors now appear on the main Semester page instead when hitting the Calculate button.
-Remove duplicate CAP when editing Semester results.
-Added a Changelog.'''
+    ans2= '''
+- Added a new page to the SU Calculator
+- SU Calculator now gives basic functionality of SUing subjects with same credits.
+- SU Calculator may not work for different credits across modules.
+'''
+    text.insert(tk.END, ans2, 'body')
+    
+    text.insert(tk.END, '\nVersion 0.8.0 \n', 'heading')
+    text.insert(tk.END, '\n \nChangelog', 'heading')
+    ans1= '''
+- Edited errors so that they are more informative.
+- Added basic functionality for a SU Calculator.
+- Some errors now appear on the main Semester page instead when hitting the Calculate button.
+- Remove duplicate CAP when editing Semester results.
+- Added a Changelog.'''
 
-    text.insert(tk.END, ans, 'body')
+    text.insert(tk.END, ans1, 'body')
 
     root.mainloop()
 
@@ -89,6 +102,15 @@ Or else this may result in your GPA not being calculated properly. \n
 '''
 
     text1.insert(tk.END, ans1, 'body')
+
+    text1.insert(tk.END, 'Help! The app looks blurry. \n', 'heading')
+
+    ans2 = '''
+This is due to Windows scale and layout. You can either change the scale in the Display Settings to 100%.
+Alternatively, right click on the app, select Properties, Compatibility, Change high DPI Settings.
+Check the box under High DPI Scaling Override and click Apply.
+'''
+    text1.insert(tk.END, ans2, 'body')
 
     root.mainloop()
 
@@ -201,7 +223,7 @@ class CAPCalc(tk.Tk):
         tk.Tk.config(self, menu=menubar)
 
         self.frames = {}
-        for fr in (StartPage, CAPorSU, Y1S1, Y1S2, Y2S1, Y2S2, Y3S1, Y3S2, Y4S1, Y4S2, SUCalc, FinalPage):
+        for fr in (StartPage, CAPorSU, Y1S1, Y1S2, Y2S1, Y2S2, Y3S1, Y3S2, Y4S1, Y4S2, SUCalc, SUable, FinalPage):
             frame = fr(container, self)
 
             self.frames[fr] = frame
@@ -221,7 +243,7 @@ class StartPage(tk.Frame):
         tk.Frame.__init__(self, parent)
         self.controller = controller
 
-        label = ttk.Label(self, text = "Please choose your university.")
+        label = ttk.Label(self, text = "Please choose your university.", justify="center")
         label.config(font = ("Segoe UI", 14))
 
         label.pack()
@@ -260,9 +282,7 @@ class Y1S1(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-
+        
         label0 = ttk.Label(self, text="Year 1 Semester 1", justify="center")
         label0.config(font=("Segoe UI", 14))
         label0.pack()
@@ -295,8 +315,6 @@ class Y1S2(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
 
         label0 = tk.Label(self, text="Year 1 Semester 2", justify="center")
         label0.config(font=("Segoe UI", 14))
@@ -329,9 +347,7 @@ class Y2S1(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
-
+        
         label0 = tk.Label(self, text="Year 2 Semester 1", justify="center")
         label0.config(font=("Segoe UI", 14))
         label0.pack()
@@ -363,8 +379,6 @@ class Y2S2(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
 
         label0 = ttk.Label(self, text="Year 2 Semester 2", justify="center")
         label0.config(font=("Segoe UI", 14))
@@ -397,8 +411,6 @@ class Y3S1(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
 
         label0 = ttk.Label(self, text="Year 3 Semester 1", justify="center")
         label0.config(font=("Segoe UI", 14))
@@ -431,8 +443,6 @@ class Y3S2(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
 
         label0 = ttk.Label(self, text="Year 3 Semester 2", justify="center")
         label0.config(font=("Segoe UI", 14))
@@ -465,8 +475,6 @@ class Y4S1(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
 
         label0 = ttk.Label(self, text="Year 4 Semester 1", justify="center")
         label0.config(font=("Segoe UI", 14))
@@ -499,8 +507,6 @@ class Y4S2(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
         self.controller = controller
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
 
         label0 = ttk.Label(self, text="Year 4 Semester 2")
         label0.config(font=("Segoe UI", 14))
@@ -538,7 +544,7 @@ class SUCalc(tk.Frame):
         label0.config(font=("Segoe UI", 14))
         label0.pack()
         
-        label1 = ttk.Label(self, text="Please enter your current GPA.", justify="center")
+        label1 = ttk.Label(self, text="Please enter your current CAP/GPA given.", justify="center")
         label1.config(font = ("Segoe UI", 12))
         label1.pack()
 
@@ -567,15 +573,102 @@ class SUCalc(tk.Frame):
         button1 = ttk.Button(self, text = "Previous <", command = lambda: controller.show_frame(CAPorSU))
         button1.pack(side = "left")
 
-        button2 = ttk.Button(self, text="Next >", command=lambda: popupmsg("Sorry, this is still a work in progress", "Next Page does not exist"))
+        button2 = ttk.Button(self, text="Next >", command=lambda: SUnext(entry1, entry2, entry3, entry4))
         button2.pack(side = "right")
+
+        def SUnext(ent1, ent2, ent3, ent4):
+            global uni
+            global init_gpa
+            global bef_credit
+            global this_sem_grades
+            global this_sem_credits
+
+            ent1 = ent1.get()
+            ent2 = ent2.get()
+            
+            grades = getGrades(ent3)
+            this_sem_credits = getCredits(ent4)
+            total_cre = sum(this_sem_credits)
+
+            bef_credit = int(ent2) - total_cre
+
+            res = ccm.CAPCal(uni)
+            this_sem_grades = res.sem_grades(grades, this_sem_credits, "This Sem")
+            final = res.grade_count((this_sem_grades,))
+
+            if bef_credit > 0:
+                init_gpa = ((float(ent1) * int(ent2)) - (final * total_cre))/bef_credit
+            else:
+                init_gpa = 0
+
+            return controller.show_frame(SUable)
+            
+
+
+class SUable(tk.Frame):
+    def __init__(self, parent, controller):
+        tk.Frame.__init__(self, parent)
+        self.controller = controller
+        
+        label0 = ttk.Label(self, text="SUable modules")
+        label0.config(font=("Segoe UI", 14))
+        label0.pack()
+        
+        label1 = ttk.Label(self, text="Please enter your grades for the modules that you can SU, seperated by commas.", justify="center")
+        label1.config(font = ("Segoe UI", 12))
+        label1.pack()
+
+        entry1 = ttk.Entry(self, justify="center")
+        entry1.pack()
+
+        label2 = ttk.Label(self, text = "Plase enter your number of credits for each module you can SU, seperated by commas.", justify="center")
+        label2.config(font = ("Segoe UI", 12))
+        label2.pack()
+
+        entry2 = ttk.Entry(self, justify="center")
+        entry2.pack()
+
+        button1 = ttk.Button(self, text="Calculate", command=lambda: calculate(entry1, entry2))
+        button1.pack()
+
+        def calculate(ent1, ent2):
+            global this_sem_grades
+            global init_gpa
+            global bef_credit
+            global uni
+            global this_sem_credits
+
+            orig = None
+
+            grades = getGrades(ent1)
+            credit = getCredits(ent2)
+
+            res = ccm.CAPCal(uni)
+            su_grades = res.sem_grades(grades, credit, "SU")
+            su_grades.sort(key=lambda x: ccm.grade_dict[uni][x[0]])
+            su_grades.sort(key=lambda x: x[1], reverse = True)
+
+            for grade in su_grades:
+                for j in range(len(this_sem_grades)):
+                    if grade == this_sem_grades[j]:
+                        orig = this_sem_grades[j]
+                        this_sem_grades[j] = ('S',0)
+                        for k in range(len(this_sem_credits)):
+                            if this_sem_credits[k] == orig[1]:
+                                this_sem_credits[k] = 0
+                                break
+                        break
+                final = res.grade_count((this_sem_grades,))
+                actual = ((final * sum(this_sem_credits)) + (init_gpa * bef_credit))/(bef_credit + sum(this_sem_credits))
+                actual = round(actual, 2)
+
+                label3 = ttk.Label(self, text = f"{actual} if you SU the next {orig[0]} with {orig[1]} credits.", justify="center")
+                label3.pack()
         
 
 class FinalPage(tk.Frame):
     def __init__(self, parent, controller):
         tk.Frame.__init__(self, parent)
-        self.grid_rowconfigure(0, weight=1)
-        self.grid_columnconfigure(0, weight=1)
         self.controller = controller
 
         label1 = ttk.Label(self, text="Your estimated GPA is: ", justify="center")
