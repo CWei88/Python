@@ -50,9 +50,21 @@ def abtMenu():
     text.tag_configure('center', justify='center')
 
     text.insert(tk.END, 'About \n', ['big', 'center'])
-    text.insert(tk.END, '\nVersion 0.9.5 \n', 'heading')
+
+    text.insert(tk.END, '\nCurrent Version: 1.0.1 \n', ['heading', 'center'])
+
+    text.insert(tk.END, '\nVersion 1.0.1 \n', 'heading')
     text.insert(tk.END, 'This is a beta version of this application and thus may be buggy. \nPlease use it with caution.', 'body')
     text.insert(tk.END, '\n \nChangelog', 'heading')
+    ans3= '''
+- Added error messages.
+- Fixed some bugs.
+- SU Calculator now able to use with different credits across modules.
+'''
+    text.insert(tk.END, ans3, 'body')
+    
+    text.insert(tk.END, '\nVersion 0.9.0 \n', 'heading')
+    text.insert(tk.END, '\nChangelog', 'heading')
     ans2= '''
 - Added a new page to the SU Calculator
 - SU Calculator now gives basic functionality of SUing subjects with same credits.
@@ -61,7 +73,7 @@ def abtMenu():
     text.insert(tk.END, ans2, 'body')
     
     text.insert(tk.END, '\nVersion 0.8.0 \n', 'heading')
-    text.insert(tk.END, '\n \nChangelog', 'heading')
+    text.insert(tk.END, '\nChangelog', 'heading')
     ans1= '''
 - Edited errors so that they are more informative.
 - Added basic functionality for a SU Calculator.
@@ -171,6 +183,9 @@ def nextButton(controller, entry1, entry2, key, nextPage):
         credit_entry[key] = credit
         
     page_entry.append(page_dict[key])
+
+    if len(page_entry) > 100:
+        page_entry = page_entry[90:]
     
     return controller.show_frame(nextPage)
 
@@ -191,6 +206,9 @@ def finishButton(controller, entry1, entry2, key):
         credit_entry[key] = credit
         
     page_entry.append(page_dict[key])
+    
+    if len(page_entry) > 100:
+        page_entry = page_entry[90:]
         
     return controller.show_frame(FinalPage)
 
@@ -245,7 +263,6 @@ class StartPage(tk.Frame):
 
         label = ttk.Label(self, text = "Please choose your university.", justify="center")
         label.config(font = ("Segoe UI", 14))
-
         label.pack()
 
         #Adds a button to select the page
@@ -258,9 +275,9 @@ class StartPage(tk.Frame):
         button3 = ttk.Button(self, text = "SMU", command=lambda: self.uni_choice("SMU", self.controller))
         button3.pack()
 
-    def uni_choice(self, univ, controller):
+    def uni_choice(self, university, controller):
         global uni
-        uni = univ
+        uni = university
         return controller.show_frame(CAPorSU)
 
 class CAPorSU(tk.Frame):
@@ -269,7 +286,7 @@ class CAPorSU(tk.Frame):
         self.controller = controller
 
         label = ttk.Label(self, text = "What would you like to do?", justify="center")
-        label.config(font = ("Segoe UI", 14))
+        label.config(font = ("Segoe UI", 12))
         label.pack()
 
         button1 = ttk.Button(self, text = "CAP Calculator", command=lambda: controller.show_frame(Y1S1))
@@ -544,7 +561,7 @@ class SUCalc(tk.Frame):
         label0.config(font=("Segoe UI", 14))
         label0.pack()
         
-        label1 = ttk.Label(self, text="Please enter your current CAP/GPA given.", justify="center")
+        label1 = ttk.Label(self, text="Please enter your current CAP/GPA in total, including this semester.", justify="center")
         label1.config(font = ("Segoe UI", 12))
         label1.pack()
 
@@ -570,7 +587,7 @@ class SUCalc(tk.Frame):
         entry4 = ttk.Entry(self, justify="center")
         entry4.pack()
 
-        button1 = ttk.Button(self, text = "Previous <", command = lambda: controller.show_frame(CAPorSU))
+        button1 = ttk.Button(self, text = "Previous <", command = lambda: controller.show_frame(StartPage))
         button1.pack(side = "left")
 
         button2 = ttk.Button(self, text="Next >", command=lambda: SUnext(entry1, entry2, entry3, entry4))
@@ -583,27 +600,38 @@ class SUCalc(tk.Frame):
             global this_sem_grades
             global this_sem_credits
 
-            ent1 = ent1.get()
-            ent2 = ent2.get()
+            if ent1.get():
+                ent1_res = float(ent1.get())
+            else:
+                return popupmsg("Please enter a value for your current CAP/GPA.", "No CAP/GPA detected")
+            if uni == "SMU":
+                if ent1_res > 4.30:
+                    return popupmsg("Your current GPA is unrealistic. Please give a realistic GPA.", "GPA exceed maximum value")
+            else:
+                if ent1_res > 5.00:
+                    return popupmsg("Your current CAP is unrealistic. Please give a realistic CAP.", "CAP exceeds maximum value")
+
+            if ent2.get():
+                ent2_res = int(ent2.get())
+            else:
+                return popupmsg("Please enter a value for your credited modules.", "No modules detected")
             
             grades = getGrades(ent3)
             this_sem_credits = getCredits(ent4)
             total_cre = sum(this_sem_credits)
 
-            bef_credit = int(ent2) - total_cre
+            bef_credit = ent2_res - total_cre
 
             res = ccm.CAPCal(uni)
             this_sem_grades = res.sem_grades(grades, this_sem_credits, "This Sem")
             final = res.grade_count((this_sem_grades,))
 
             if bef_credit > 0:
-                init_gpa = ((float(ent1) * int(ent2)) - (final * total_cre))/bef_credit
+                init_gpa = ((ent1_res * ent2_res) - (final * total_cre))/bef_credit
             else:
                 init_gpa = 0
 
             return controller.show_frame(SUable)
-            
-
 
 class SUable(tk.Frame):
     def __init__(self, parent, controller):
@@ -628,10 +656,10 @@ class SUable(tk.Frame):
         entry2 = ttk.Entry(self, justify="center")
         entry2.pack()
 
-        button1 = ttk.Button(self, text="Calculate", command=lambda: calculate(entry1, entry2))
+        button1 = ttk.Button(self, text="Calculate", command=lambda: calculate(entry1, entry2, self.controller))
         button1.pack()
 
-        def calculate(ent1, ent2):
+        def calculate(ent1, ent2, cont):
             global this_sem_grades
             global init_gpa
             global bef_credit
@@ -639,24 +667,22 @@ class SUable(tk.Frame):
             global this_sem_credits
 
             orig = None
+            lab_list = []
 
             grades = getGrades(ent1)
             credit = getCredits(ent2)
 
             res = ccm.CAPCal(uni)
             su_grades = res.sem_grades(grades, credit, "SU")
-            su_grades.sort(key=lambda x: ccm.grade_dict[uni][x[0]])
             su_grades.sort(key=lambda x: x[1], reverse = True)
-
+            su_grades.sort(key=lambda x: ccm.grade_dict[uni][x[0]])
+            
             for grade in su_grades:
                 for j in range(len(this_sem_grades)):
                     if grade == this_sem_grades[j]:
                         orig = this_sem_grades[j]
                         this_sem_grades[j] = ('S',0)
-                        for k in range(len(this_sem_credits)):
-                            if this_sem_credits[k] == orig[1]:
-                                this_sem_credits[k] = 0
-                                break
+                        this_sem_credits[j] = 0
                         break
                 final = res.grade_count((this_sem_grades,))
                 actual = ((final * sum(this_sem_credits)) + (init_gpa * bef_credit))/(bef_credit + sum(this_sem_credits))
@@ -664,7 +690,20 @@ class SUable(tk.Frame):
 
                 label3 = ttk.Label(self, text = f"{actual} if you SU the next {orig[0]} with {orig[1]} credits.", justify="center")
                 label3.pack()
-        
+                lab_list.append(label3)
+
+            button2 = ttk.Button(self, text="Done!", command = lambda: clearBut(ent1, ent2, cont))
+            button2.pack()
+
+            def clearBut(ent1, ent2, cont):
+                for lab in lab_list:
+                    lab.destroy()
+                this_sem_grades.clear()
+                this_sem_credits.clear()
+                ent1.delete(0, 'end')
+                ent2.delete(0, 'end')
+                return cont.show_frame(StartPage)
+                
 
 class FinalPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -682,8 +721,8 @@ class FinalPage(tk.Frame):
         global uni
         global grade_entry
         global credit_entry
-        all_results = []
         
+        all_results = []
         res = ccm.CAPCal(uni)
         if len(grade_entry) > 0 and len(credit_entry) > 0:
             for grade_key, credit_key in zip(grade_entry, credit_entry):
