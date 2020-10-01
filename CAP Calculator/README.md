@@ -5,7 +5,7 @@ A simple CAP calculator for NUS, NTU and SMU. You can either calculate the CAP y
 <h2>Version History </h2>
 
 <h3> Version 1.0.0 </h3>
-- Added error messages.  
+- Added error messages.   
 - Fixed some bugs.  
 - SU Calculator now able to use with different credits across modules.  
 
