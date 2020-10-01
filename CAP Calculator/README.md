@@ -10,13 +10,13 @@ Fixed some bugs.</br>
 SU Calculator now able to use with different credits across modules.</br> 
 
 <h3> Version 0.9.0 </h3>
-- Added a new page to the SU Calculator  
-- SU Calculator now gives basic functionality of SUing subjects with same credits.  
-- SU Calculator may not work for different credits across modules.
+Added a new page to the SU Calculator. </br> 
+SU Calculator now gives basic functionality of SUing subjects with same credits.</br>  
+SU Calculator may not work for different credits across modules.</br>
 
 <h3> Version 0.8.0 </h3>
-- Edited errors so that they are more informative.  
-- Added basic functionality for a SU Calculator.  
-- Some errors now appear on the main Semester page instead when hitting the Calculate button.  
-- Remove duplicate CAP when editing Semester results.  
-- Added a Changelog.
+Edited errors so that they are more informative.</br> 
+Added basic functionality for a SU Calculator.</br>  
+Some errors now appear on the main Semester page instead when hitting the Calculate button.</br>  
+Remove duplicate CAP when editing Semester results.</br>
+Added a Changelog.</br>
