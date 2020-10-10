@@ -2,6 +2,12 @@
 
 A simple CAP calculator for NUS, NTU and SMU. You can either calculate the CAP you have so far, or you can use it to calculate which module you want to S/U, Pass/Fail.
 
+<h2> How to install </h2>
+
+1. Download CAP Calculator.zip file
+2. Unzip the file using Windows' own extractor or an external extractor such as WinRAR or 7Zip.
+3. Run the CAP Calculator.exe file.
+
 <h2>Version History </h2>
 
 <h3> Version 1.0.0 </h3>
