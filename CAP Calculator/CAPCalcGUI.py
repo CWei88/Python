@@ -109,7 +109,7 @@ def helpMenu():
 This app works by calculating your grades and credits from each module respectively.
 By inputting your grades, it will use what you have to calculate your CAP/GPA.
 Ensure that the grade that you input corresponds to your grade.
-For example, if you scored A for a 4 credits module and B for a 2 credist module, the input will be: a,b for grades and 4,2 for credits.
+For example, if you scored A for a 4 credits module and B for a 2 credit module, the input will be: a,b for grades and 4,2 for credits.
 Or else this may result in your GPA not being calculated properly. \n
 '''
 
