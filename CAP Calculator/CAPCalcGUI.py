@@ -51,9 +51,9 @@ def abtMenu():
 
     text.insert(tk.END, 'About \n', ['big', 'center'])
 
-    text.insert(tk.END, '\nCurrent Version: 1.0.1 \n', ['heading', 'center'])
+    text.insert(tk.END, '\nCurrent Version: 1.0.0 \n', ['heading', 'center'])
 
-    text.insert(tk.END, '\nVersion 1.0.1 \n', 'heading')
+    text.insert(tk.END, '\nVersion 1.0.0 \n', 'heading')
     text.insert(tk.END, 'This is a beta version of this application and thus may be buggy. \nPlease use it with caution.', 'body')
     text.insert(tk.END, '\n \nChangelog', 'heading')
     ans3= '''
@@ -62,26 +62,6 @@ def abtMenu():
 - SU Calculator now able to use with different credits across modules.
 '''
     text.insert(tk.END, ans3, 'body')
-    
-    text.insert(tk.END, '\nVersion 0.9.0 \n', 'heading')
-    text.insert(tk.END, '\nChangelog', 'heading')
-    ans2= '''
-- Added a new page to the SU Calculator
-- SU Calculator now gives basic functionality of SUing subjects with same credits.
-- SU Calculator may not work for different credits across modules.
-'''
-    text.insert(tk.END, ans2, 'body')
-    
-    text.insert(tk.END, '\nVersion 0.8.0 \n', 'heading')
-    text.insert(tk.END, '\nChangelog', 'heading')
-    ans1= '''
-- Edited errors so that they are more informative.
-- Added basic functionality for a SU Calculator.
-- Some errors now appear on the main Semester page instead when hitting the Calculate button.
-- Remove duplicate CAP when editing Semester results.
-- Added a Changelog.'''
-
-    text.insert(tk.END, ans1, 'body')
 
     root.mainloop()
 
